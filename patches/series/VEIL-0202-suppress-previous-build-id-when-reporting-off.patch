@@ -1,0 +1,27 @@
+--- a/toolkit/components/telemetry/pings/TelemetrySession.sys.mjs
++++ b/toolkit/components/telemetry/pings/TelemetrySession.sys.mjs
+@@ -881,15 +881,20 @@
+ 
+     annotateCrashReport(this._sessionId);
+ 
+-    // Record old value and update build ID preference if this is the first
+-    // run with a new build ID.
++    // `toolkit.telemetry.previousBuildID` only feeds telemetry metadata.
++    // When both reporting upload paths are disabled, avoid persisting it.
+     let previousBuildId = Services.prefs.getStringPref(
+       TelemetryUtils.Preferences.PreviousBuildID,
+       null
+     );
+     let thisBuildID = Services.appinfo.appBuildID;
+-    // If there is no previousBuildId preference, we send null to the server.
+-    if (previousBuildId != thisBuildID) {
++    let reportingUploadEnabled =
++      Services.prefs.getBoolPref(TelemetryUtils.Preferences.FhrUploadEnabled) ||
++      Services.prefs.getBoolPref("datareporting.usage.uploadEnabled", false);
++    if (!reportingUploadEnabled) {
++      Services.prefs.clearUserPref(TelemetryUtils.Preferences.PreviousBuildID);
++    } else if (previousBuildId != thisBuildID) {
++      // If there is no previousBuildId preference, we send null to the server.
+       this._previousBuildId = previousBuildId;
+       Services.prefs.setStringPref(
+         TelemetryUtils.Preferences.PreviousBuildID,

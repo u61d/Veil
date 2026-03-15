@@ -1,0 +1,39 @@
+diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
+--- a/browser/app/profile/firefox.js
++++ b/browser/app/profile/firefox.js
+@@ -1844,7 +1844,7 @@ pref("browser.topsites.component.enabled", false);
+ 
+ pref("browser.topsites.useRemoteSetting", true);
+ // Fetch sponsored Top Sites from Mozilla Tiles Service (Contile)
+-pref("browser.topsites.contile.enabled", true);
++pref("browser.topsites.contile.enabled", false);
+ pref("browser.topsites.contile.endpoint", "https://contile.services.mozilla.com/v1/tiles");
+ 
+ // The base URL for the Quick Suggest anonymizing proxy. To make a request to
+@@ -1853,7 +1853,7 @@ pref("browser.partnerlink.attributionURL", "https://topsites.services.mozilla.co
+ pref("browser.partnerlink.campaign.topsites", "amzn_2020_a1");
+ 
+ // Activates preloading of the new tab url.
+-pref("browser.newtab.preload", true);
++pref("browser.newtab.preload", false);
+ 
+ // Do not enable the preonboarding experience on Linux
+ #ifdef XP_LINUX
+@@ -2850,7 +2850,7 @@ pref("doh-rollout.clearModeOnShutdown", false);
+ pref("network.trr_ui.fallback_was_checked", true);
+ 
+ // Normandy client preferences
+-pref("app.normandy.api_url", "https://normandy.cdn.mozilla.net/api/v1");
++pref("app.normandy.api_url", "");
+ pref("app.normandy.dev_mode", false);
+ pref("app.normandy.enabled", true);
+ pref("app.normandy.first_run", true);
+@@ -2896,7 +2896,7 @@ pref("toolkit.coverage.enabled", false);
+ pref("toolkit.coverage.endpoint.base", "https://coverage.mozilla.org");
+ 
+ // Discovery prefs
+-pref("browser.discovery.enabled", true);
++pref("browser.discovery.enabled", false);
+ pref("browser.discovery.containers.enabled", true);
+ pref("browser.discovery.sites", "addons.mozilla.org");
+ 

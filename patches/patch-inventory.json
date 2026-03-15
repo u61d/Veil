@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "generated": "2026-03-15",
+  "upstream": {
+    "repository": "https://github.com/mozilla-firefox/firefox",
+    "branch": "main",
+    "notes": "Bootstrap source is python/mozboot/bin/bootstrap.py in the upstream Firefox tree."
+  },
+  "patches": [
+    {
+      "id": "VEIL-0001",
+      "title": "Disable telemetry ping defaults and study opt-in",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0001-disable-telemetry-defaults.patch",
+      "upstream_files": [
+        "browser/app/profile/firefox.js"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_source_assertions.py"
+      ],
+      "docs": [
+        "docs/telemetry-audit-matrix.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0002",
+      "title": "Disable Normandy endpoint, discovery, Contile, and New Tab preload defaults",
+      "category": "network-behavior",
+      "status": "authored",
+      "path": "patches/series/VEIL-0002-disable-unsolicited-network-defaults.patch",
+      "upstream_files": [
+        "browser/app/profile/firefox.js"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_source_assertions.py"
+      ],
+      "docs": [
+        "docs/network-audit-matrix.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0100",
+      "title": "Add compile-time data-reporting disable layer",
+      "category": "build-release",
+      "status": "authored",
+      "path": "patches/series/VEIL-0100-compile-time-telemetry-disable-layer.patch",
+      "upstream_files": [
+        "browser/moz.configure",
+        "browser/config/mozconfigs/linux64/veil",
+        "browser/components/BrowserComponents.manifest"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py"
+      ],
+      "docs": [
+        "docs/telemetry-audit-matrix.md",
+        "docs/architecture-map.md",
+        "docs/zero-telemetry-claim.md"
+      ]
+    },
+    {
+      "id": "VEIL-0150",
+      "title": "Patch glslopt for current Linux glibc and Clang builds",
+      "category": "build-release",
+      "status": "authored",
+      "path": "patches/series/VEIL-0150-glslopt-linux-build-fix.patch",
+      "upstream_files": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "third_party/rust/glslopt/glsl-optimizer/include/c11/threads_posix.h"
+      ],
+      "verification": [
+        "current-linux-build"
+      ],
+      "docs": [
+        "docs/build-notes.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0160",
+      "title": "Fix generated cascade-level cast for current Clang builds",
+      "category": "build-release",
+      "status": "authored",
+      "path": "patches/series/VEIL-0160-cascadelevel-clang21-build-fix.patch",
+      "upstream_files": [
+        "servo/ports/geckolib/cbindgen.toml"
+      ],
+      "verification": [
+        "isolated-drawtargetwebgl-compile",
+        "current-linux-build"
+      ],
+      "docs": [
+        "docs/build-notes.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0200",
+      "title": "Suppress first-run data-reporting, region, and connectivity startup traffic",
+      "category": "network-behavior",
+      "status": "authored",
+      "path": "patches/series/VEIL-0200-suppress-startup-network-defaults.patch",
+      "upstream_files": [
+        "browser/app/profile/firefox.js"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py",
+        "scripts/audit_network_baseline.py"
+      ],
+      "docs": [
+        "docs/network-audit-matrix.md",
+        "docs/network-audit-after.md",
+        "docs/decision-log.md",
+        "docs/zero-telemetry-claim.md"
+      ]
+    },
+    {
+      "id": "VEIL-0201",
+      "title": "Suppress persistent telemetry and Nimbus identifiers when reporting is off",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0201-suppress-local-identifier-persistence.patch",
+      "upstream_files": [
+        "toolkit/components/telemetry/app/ClientID.sys.mjs",
+        "toolkit/components/nimbus/ExperimentAPI.sys.mjs"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py",
+        "scripts/audit_network_baseline.py"
+      ],
+      "docs": [
+        "docs/telemetry-audit-matrix.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0202",
+      "title": "Suppress previous-build telemetry metadata when reporting is off",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0202-suppress-previous-build-id-when-reporting-off.patch",
+      "upstream_files": [
+        "toolkit/components/telemetry/pings/TelemetrySession.sys.mjs"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py",
+        "scripts/audit_network_baseline.py"
+      ],
+      "docs": [
+        "docs/telemetry-audit-matrix.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0203",
+      "title": "Defer Push startup until existing profile state requires it",
+      "category": "network-behavior",
+      "status": "authored",
+      "path": "patches/series/VEIL-0203-defer-push-startup.patch",
+      "upstream_files": [
+        "browser/components/BrowserGlue.sys.mjs",
+        "dom/push/PushComponents.sys.mjs"
+      ],
+      "verification": [
+        "scripts/audit_network_baseline.py",
+        "scripts/seed_push_profile.py",
+        "scripts/run_push_regression.py"
+      ],
+      "docs": [
+        "docs/network-audit-matrix.md",
+        "docs/push-regression.md",
+        "docs/network-audit-after.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0204",
+      "title": "Remove reachable data-reporting UI and infobar surfaces",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0204-remove-data-reporting-ui-surfaces.patch",
+      "upstream_files": [
+        "browser/base/content/browser-main.js",
+        "browser/base/content/browser-init.js",
+        "browser/components/preferences/privacy.js",
+        "browser/components/preferences/privacy.inc.xhtml"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py"
+      ],
+      "docs": [
+        "docs/moz_data_reporting-dependency-map.md",
+        "docs/telemetry-audit-matrix.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/decision-log.md",
+        "docs/research-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0205",
+      "title": "Reduce remaining data-reporting policy residue",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0205-reduce-datareporting-policy-residue.patch",
+      "upstream_files": [
+        "modules/libpref/init/all.js",
+        "browser/components/profiles/SelectableProfileService.sys.mjs",
+        "browser/components/asrouter/modules/ASRouterTriggerListeners.sys.mjs",
+        "toolkit/components/messaging-system/lib/SpecialMessageActions.sys.mjs"
+      ],
+      "verification": [
+        "scripts/verify_telemetry_runtime.py",
+        "scripts/audit_network_baseline.py"
+      ],
+      "docs": [
+        "docs/moz_data_reporting-dependency-map.md",
+        "docs/telemetry-audit-matrix.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0206",
+      "title": "Ignore data-reporting state in Veil-generated backups",
+      "category": "telemetry",
+      "status": "authored",
+      "path": "patches/series/VEIL-0206-ignore-datareporting-state-in-backups.patch",
+      "upstream_files": [
+        "browser/components/backup/resources/PreferencesBackupResource.sys.mjs"
+      ],
+      "verification": [
+        "scripts/verify_backup_datareporting_surfaces.py",
+        "scripts/verify_telemetry_runtime.py",
+        "scripts/audit_network_baseline.py"
+      ],
+      "docs": [
+        "docs/moz_data_reporting-dependency-map.md",
+        "docs/telemetry-audit-matrix.md",
+        "docs/zero-telemetry-claim.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0300",
+      "title": "Veil branding and distribution metadata",
+      "category": "branding",
+      "status": "planned",
+      "path": null,
+      "upstream_files": [
+        "browser/branding/unofficial/configure.sh",
+        "browser/branding/unofficial/pref/firefox-branding.js"
+      ],
+      "verification": [
+        "future-packaging-checks"
+      ],
+      "docs": [
+        "docs/legal-compliance-checklist.md"
+      ]
+    }
+  ]
+}

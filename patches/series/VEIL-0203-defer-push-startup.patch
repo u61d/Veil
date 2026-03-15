@@ -1,0 +1,95 @@
+--- a/browser/components/BrowserGlue.sys.mjs
++++ b/browser/components/BrowserGlue.sys.mjs
+@@ -1077,9 +1077,9 @@
+       // Begin listening for incoming push messages.
+       {
+         name: "PushService.ensureReady",
+-        task: () => {
++        task: async () => {
+           try {
+-            lazy.PushService.wrappedJSObject.ensureReady();
++            await lazy.PushService.wrappedJSObject.maybeEnsureReady();
+           } catch (ex) {
+             // NS_ERROR_NOT_AVAILABLE will get thrown for the PushService
+             // getter if the PushService is disabled.
+--- a/dom/push/PushComponents.sys.mjs
++++ b/dom/push/PushComponents.sys.mjs
+@@ -14,6 +14,17 @@
+   Services.appinfo.processType === Ci.nsIXULRuntime.PROCESS_TYPE_DEFAULT;
+ 
+ const lazy = {};
++ChromeUtils.defineESModuleGetters(lazy, {
++  PushDB: "resource://gre/modules/PushDB.sys.mjs",
++  PushRecord: "resource://gre/modules/PushRecord.sys.mjs",
++  pushBroadcastService: "resource://gre/modules/PushBroadcastService.sys.mjs",
++});
++
++const PREF_PUSH_ENABLED = "dom.push.enabled";
++const PREF_PUSH_USER_AGENT_ID = "dom.push.userAgentID";
++const PUSH_DB_NAME = "pushapi";
++const PUSH_DB_VERSION = 5;
++const PUSH_DB_STORE_NAME = "pushapi";
+ 
+ // The default Push service implementation.
+ ChromeUtils.defineLazyGetter(lazy, "PushService", function () {
+@@ -264,6 +275,60 @@
+     this.service.init();
+   },
+ 
++  async _hasPersistedSubscriptionState() {
++    let db = new lazy.PushDB(
++      PUSH_DB_NAME,
++      PUSH_DB_VERSION,
++      PUSH_DB_STORE_NAME,
++      "channelID",
++      lazy.PushRecord
++    );
++    try {
++      let records = await db.getAllKeyIDs();
++      return records.some(record => typeof record?.scope == "string");
++    } finally {
++      db.close();
++    }
++  },
++
++  async maybeEnsureReady() {
++    if (!Services.prefs.getBoolPref(PREF_PUSH_ENABLED, false)) {
++      return;
++    }
++
++    try {
++      let listeners = await lazy.pushBroadcastService.getListeners();
++      if (Object.keys(listeners).length) {
++        this.ensureReady();
++        return;
++      }
++    } catch (error) {
++      console.error(error);
++      this.ensureReady();
++      return;
++    }
++
++    try {
++      if (await this._hasPersistedSubscriptionState()) {
++        this.ensureReady();
++        return;
++      }
++    } catch (error) {
++      // Favor functional delivery if our lightweight state check fails.
++      console.error(error);
++      this.ensureReady();
++      return;
++    }
++
++    if (
++      Services.prefs.prefHasUserValue(PREF_PUSH_USER_AGENT_ID) &&
++      Services.prefs.getStringPref(PREF_PUSH_USER_AGENT_ID, "")
++    ) {
++      // Treat a bare UAID as stale state unless the profile probes failed.
++      Services.prefs.clearUserPref(PREF_PUSH_USER_AGENT_ID);
++    }
++  },
++
+   _toPageRecord(principal, data) {
+     if (!data.scope) {
+       throw new Error("Invalid page record: missing scope");

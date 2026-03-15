@@ -1,0 +1,55 @@
+--- a/modules/libpref/init/all.js
++++ b/modules/libpref/init/all.js
+@@ -3757,7 +3757,7 @@
+ //  * userChrome.css
+ pref("toolkit.legacyUserProfileCustomizations.stylesheets", false);
+ 
+-#ifdef MOZ_DATA_REPORTING
++#if defined(MOZ_DATA_REPORTING) && defined(MOZ_TELEMETRY_REPORTING)
+   pref("datareporting.policy.dataSubmissionEnabled", true);
+   pref("datareporting.policy.dataSubmissionPolicyNotifiedTime", "0");
+   pref("datareporting.policy.dataSubmissionPolicyAcceptedVersion", 0);
+--- a/browser/components/profiles/SelectableProfileService.sys.mjs
++++ b/browser/components/profiles/SelectableProfileService.sys.mjs
+@@ -114,15 +114,6 @@
+     "browser.shell.checkDefaultBrowser",
+     "browser.backup.enabled_on.profiles",
+     DAU_GROUPID_PREF_NAME,
+-    "datareporting.healthreport.uploadEnabled",
+-    "datareporting.policy.currentPolicyVersion",
+-    "datareporting.policy.dataSubmissionEnabled",
+-    "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
+-    "datareporting.policy.dataSubmissionPolicyBypassNotification",
+-    "datareporting.policy.dataSubmissionPolicyNotifiedTime",
+-    "datareporting.policy.minimumPolicyVersion",
+-    "datareporting.policy.minimumPolicyVersion.channel-beta",
+-    "datareporting.usage.uploadEnabled",
+     "termsofuse.acceptedDate",
+     "termsofuse.firstAcceptedDate",
+     "termsofuse.acceptedVersion",
+--- a/browser/components/asrouter/modules/ASRouterTriggerListeners.sys.mjs
++++ b/browser/components/asrouter/modules/ASRouterTriggerListeners.sys.mjs
+@@ -136,9 +136,6 @@
+       // about:preferences#privacy. Changes to these are shared across profiles
+       // in a profile group and should show an infobar in other profiles.
+       _trackedPrefs: [
+-        "datareporting.healthreport.uploadEnabled",
+-        "datareporting.usage.uploadEnabled",
+-        "datareporting.policy.dataSubmissionEnabled",
+         "app.shield.optoutstudies.enabled",
+         "browser.crashReports.unsubmittedCheck.autoSubmit2",
+         "browser.discovery.enabled",
+--- a/toolkit/components/messaging-system/lib/SpecialMessageActions.sys.mjs
++++ b/toolkit/components/messaging-system/lib/SpecialMessageActions.sys.mjs
+@@ -275,11 +275,6 @@
+       "cookiebanners.service.mode",
+       "cookiebanners.service.mode.privateBrowsing",
+       "cookiebanners.service.detectOnly",
+-      "datareporting.healthreport.uploadEnabled",
+-      "datareporting.policy.currentPolicyVersion",
+-      "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
+-      "datareporting.policy.dataSubmissionPolicyNotifiedTime",
+-      "datareporting.policy.minimumPolicyVersion",
+       "messaging-system.askForFeedback",
+       "browser.toolbars.bookmarks.visibility",
+       "sidebar.verticalTabs",

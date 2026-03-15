@@ -1,0 +1,24 @@
+--- a/browser/components/backup/resources/PreferencesBackupResource.sys.mjs
++++ b/browser/components/backup/resources/PreferencesBackupResource.sys.mjs
+@@ -59,6 +59,10 @@
+     // List of prefs we never backup.
+     let kIgnoredPrefs = [
+       "app.normandy.user_id",
++      "datareporting.dau.cachedUsageProfileID",
++      "datareporting.dau.cachedUsageProfileGroupID",
++      "datareporting.healthreport.uploadEnabled",
++      "datareporting.usage.uploadEnabled",
+       "toolkit.telemetry.cachedClientID",
+       "toolkit.telemetry.cachedProfileGroupID",
+       PROFILE_RESTORATION_DATE_PREF,
+@@ -67,6 +71,11 @@
+     const backupPrefs = Services.prefs.getChildList("browser.backup.");
+     kIgnoredPrefs = kIgnoredPrefs.concat(backupPrefs);
+ 
++    const dataReportingPolicyPrefs = Services.prefs.getChildList(
++      "datareporting.policy."
++    );
++    kIgnoredPrefs = kIgnoredPrefs.concat(dataReportingPolicyPrefs);
++
+     // Prefs with this prefix are always overriden.
+     const kNimbusMetadataPrefPrefix = "nimbus.";

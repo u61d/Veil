@@ -1,0 +1,253 @@
+--- a/toolkit/components/telemetry/app/ClientID.sys.mjs
++++ b/toolkit/components/telemetry/app/ClientID.sys.mjs
+@@ -45,6 +45,8 @@
+ const PREF_CACHED_USAGE_PROFILEID = "datareporting.dau.cachedUsageProfileID";
+ const PREF_CACHED_USAGE_PROFILEGROUPID =
+   "datareporting.dau.cachedUsageProfileGroupID";
++const PREF_FHR_UPLOAD_ENABLED = "datareporting.healthreport.uploadEnabled";
++const PREF_USAGE_UPLOAD_ENABLED = "datareporting.usage.uploadEnabled";
+ 
+ /**
+  * Checks if the string is a valid UUID (without braces).
+@@ -251,6 +253,45 @@
+   _resetUsageProfileIdentifierTask: null,
+   _logger: null,
+ 
++  _shouldPersistIdentifiers() {
++    return (
++      Services.prefs.getBoolPref(PREF_FHR_UPLOAD_ENABLED, false) ||
++      Services.prefs.getBoolPref(PREF_USAGE_UPLOAD_ENABLED, false)
++    );
++  },
++
++  async _clearPersistedIdentifiers() {
++    Services.prefs.clearUserPref(PREF_CACHED_CLIENTID);
++    Services.prefs.clearUserPref(PREF_CACHED_PROFILEGROUPID);
++    Services.prefs.clearUserPref(PREF_CACHED_USAGE_PROFILEID);
++    Services.prefs.clearUserPref(PREF_CACHED_USAGE_PROFILEGROUPID);
++
++    try {
++      await IOUtils.remove(lazy.gStateFilePath);
++    } catch (ex) {
++      if (!DOMException.isInstance(ex) || ex.name !== "NotFoundError") {
++        throw ex;
++      }
++    }
++  },
++
++  _setKnownIdentifiers() {
++    this._clientID = CANARY_CLIENT_ID;
++    this._clientIDHash = null;
++    this._profileGroupID = CANARY_PROFILE_GROUP_ID;
++    this._usageProfileID = CANARY_USAGE_PROFILE_ID;
++    this._usageProfileGroupID = CANARY_USAGE_PROFILE_GROUP_ID;
++
++    if (AppConstants.platform != "android") {
++      Glean.legacyTelemetry.clientId.set(this._clientID);
++      Glean.legacyTelemetry.profileGroupId.set(this._profileGroupID);
++      Glean.usage.profileId.set(this._usageProfileID);
++      Glean.usage.profileGroupId.set(this._usageProfileGroupID);
++    }
++
++    GleanPings.usageReporting.setEnabled(false);
++  },
++
+   _loadDataReportingState() {
+     if (this._loadClientIdTask) {
+       return this._loadClientIdTask;
+@@ -273,6 +314,17 @@
+     await this._resetIdentifiersTask;
+     await this._resetUsageProfileIdentifierTask;
+ 
++    if (!this._shouldPersistIdentifiers()) {
++      await this._clearPersistedIdentifiers();
++      this._setKnownIdentifiers();
++      return {
++        clientID: this._clientID,
++        profileGroupID: this._profileGroupID,
++        usageProfileID: this._usageProfileID,
++        usageProfileGroupID: this._usageProfileGroupID,
++      };
++    }
++
+     // Try to load the client id from the DRS state file.
+     let hasCurrentClientID = false;
+     let hasCurrentProfileGroupID = false;
+@@ -407,6 +459,11 @@
+   async _saveDataReportingState() {
+     try {
+       this._log.trace(`_saveDataReportingState`);
++      if (!this._shouldPersistIdentifiers()) {
++        await this._clearPersistedIdentifiers();
++        this._saveDataReportingStateTask = null;
++        return;
++      }
+       let obj = {
+         version: DRS_STATE_VERSION,
+         clientID: this._clientID,
+@@ -590,6 +647,10 @@
+    *  - null otherwise
+    */
+   getCachedClientID() {
++    if (!this._shouldPersistIdentifiers()) {
++      return CANARY_CLIENT_ID;
++    }
++
+     if (this._clientID) {
+       // Already loaded the client id from disk.
+       return this._clientID;
+@@ -634,6 +695,10 @@
+    *  - null otherwise
+    */
+   getCachedProfileGroupID() {
++    if (!this._shouldPersistIdentifiers()) {
++      return CANARY_PROFILE_GROUP_ID;
++    }
++
+     if (this._profileGroupID) {
+       // Already loaded the profile group ID from disk.
+       return this._profileGroupID;
+@@ -678,6 +743,10 @@
+    *  - null otherwise
+    */
+   getCachedUsageProfileID() {
++    if (!this._shouldPersistIdentifiers()) {
++      return CANARY_USAGE_PROFILE_ID;
++    }
++
+     if (this._usageProfileID) {
+       // Already loaded the Usage Profile ID from disk.
+       return this._usageProfileID;
+@@ -722,6 +791,10 @@
+    *  - null otherwise
+    */
+   getCachedUsageProfileGroupID() {
++    if (!this._shouldPersistIdentifiers()) {
++      return CANARY_USAGE_PROFILE_GROUP_ID;
++    }
++
+     if (this._usageProfileGroupID) {
+       // Already loaded the Usage Profile Group ID from disk.
+       return this._usageProfileGroupID;
+@@ -885,7 +958,11 @@
+     }
+ 
+     this._clientIDHash = null;
+-    Services.prefs.setStringPref(PREF_CACHED_CLIENTID, this._clientID);
++    if (this._shouldPersistIdentifiers()) {
++      Services.prefs.setStringPref(PREF_CACHED_CLIENTID, this._clientID);
++    } else {
++      Services.prefs.clearUserPref(PREF_CACHED_CLIENTID);
++    }
+     return true;
+   },
+ 
+@@ -908,10 +985,14 @@
+       Glean.legacyTelemetry.profileGroupId.set(id);
+     }
+ 
+-    Services.prefs.setStringPref(
+-      PREF_CACHED_PROFILEGROUPID,
+-      this._profileGroupID
+-    );
++    if (this._shouldPersistIdentifiers()) {
++      Services.prefs.setStringPref(
++        PREF_CACHED_PROFILEGROUPID,
++        this._profileGroupID
++      );
++    } else {
++      Services.prefs.clearUserPref(PREF_CACHED_PROFILEGROUPID);
++    }
+     return true;
+   },
+ 
+@@ -934,10 +1015,14 @@
+       Glean.usage.profileId.set(id);
+     }
+ 
+-    Services.prefs.setStringPref(
+-      PREF_CACHED_USAGE_PROFILEID,
+-      this._usageProfileID
+-    );
++    if (this._shouldPersistIdentifiers()) {
++      Services.prefs.setStringPref(
++        PREF_CACHED_USAGE_PROFILEID,
++        this._usageProfileID
++      );
++    } else {
++      Services.prefs.clearUserPref(PREF_CACHED_USAGE_PROFILEID);
++    }
+     return true;
+   },
+ 
+@@ -963,10 +1048,14 @@
+       Glean.usage.profileGroupId.set(id);
+     }
+ 
+-    Services.prefs.setStringPref(
+-      PREF_CACHED_USAGE_PROFILEGROUPID,
+-      this._usageProfileGroupID
+-    );
++    if (this._shouldPersistIdentifiers()) {
++      Services.prefs.setStringPref(
++        PREF_CACHED_USAGE_PROFILEGROUPID,
++        this._usageProfileGroupID
++      );
++    } else {
++      Services.prefs.clearUserPref(PREF_CACHED_USAGE_PROFILEGROUPID);
++    }
+     return true;
+   },
+ 
+--- a/toolkit/components/nimbus/ExperimentAPI.sys.mjs
++++ b/toolkit/components/nimbus/ExperimentAPI.sys.mjs
+@@ -186,24 +186,6 @@
+   #studiesEnabled = false;
+ 
+   constructor() {
+-    if (IS_MAIN_PROCESS) {
+-      // Ensure that the profile ID is cached in a pref.
+-      if (Services.prefs.prefHasUserValue(Prefs.NIMBUS_PROFILE_ID)) {
+-        this.#cachedProfileId = Services.prefs.getStringPref(
+-          Prefs.NIMBUS_PROFILE_ID
+-        );
+-      } else {
+-        this.#cachedProfileId = Services.uuid
+-          .generateUUID()
+-          .toString()
+-          .slice(1, -1);
+-        Services.prefs.setStringPref(
+-          Prefs.NIMBUS_PROFILE_ID,
+-          this.#cachedProfileId
+-        );
+-      }
+-    }
+-
+     this._onEnabledPrefChange = this._onEnabledPrefChange.bind(this);
+     this._annotateCrashReport = this._annotateCrashReport.bind(this);
+     this._removeCrashReportAnnotator =
+@@ -488,6 +470,24 @@
+       );
+     }
+ 
++    // Do not create persistent experiment identifiers on import alone.
++    if (!this.#cachedProfileId) {
++      if (Services.prefs.prefHasUserValue(Prefs.NIMBUS_PROFILE_ID)) {
++        this.#cachedProfileId = Services.prefs.getStringPref(
++          Prefs.NIMBUS_PROFILE_ID
++        );
++      } else {
++        this.#cachedProfileId = Services.uuid
++          .generateUUID()
++          .toString()
++          .slice(1, -1);
++        Services.prefs.setStringPref(
++          Prefs.NIMBUS_PROFILE_ID,
++          this.#cachedProfileId
++        );
++      }
++    }
++
+     return this.#cachedProfileId;
+   }
+ 

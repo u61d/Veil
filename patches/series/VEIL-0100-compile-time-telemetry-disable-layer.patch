@@ -1,0 +1,42 @@
+diff --git a/browser/moz.configure b/browser/moz.configure
+--- a/browser/moz.configure
++++ b/browser/moz.configure
+@@ -5,11 +5,11 @@
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+ imply_option("MOZ_PLACES", True)
+-imply_option("MOZ_SERVICES_HEALTHREPORT", True)
++imply_option("MOZ_SERVICES_HEALTHREPORT", False)
+ imply_option("MOZ_SERVICES_SYNC", True)
+ imply_option("MOZ_DEDICATED_PROFILES", True)
+ imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", True)
+-imply_option("MOZ_NORMANDY", True)
++imply_option("MOZ_NORMANDY", False)
+ imply_option("MOZ_PROFILE_MIGRATOR", True)
+ 
+ 
+diff --git a/browser/config/mozconfigs/linux64/veil b/browser/config/mozconfigs/linux64/veil
+new file mode 100644
+--- /dev/null
++++ b/browser/config/mozconfigs/linux64/veil
+@@ -0,0 +1,6 @@
++mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-veil
++
++. "$topsrcdir/browser/config/mozconfigs/linux64/plain-opt"
++
++# Disable product telemetry reporting at configure time for Veil builds.
++ac_add_options MOZ_TELEMETRY_REPORTING=
+diff --git a/browser/components/BrowserComponents.manifest b/browser/components/BrowserComponents.manifest
+--- a/browser/components/BrowserComponents.manifest
++++ b/browser/components/BrowserComponents.manifest
+@@ -95,7 +95,9 @@ category browser-quit-application-granted resource:///modules/BrowserUsageTeleme
+ category browser-quit-application-granted moz-src:///browser/components/places/Interactions.sys.mjs Interactions.uninit
+ category browser-quit-application-granted moz-src:///browser/components/pagedata/PageDataService.sys.mjs PageDataService.uninit
+ category browser-quit-application-granted resource://gre/modules/PageThumbs.sys.mjs PageThumbs.uninit
+ category browser-quit-application-granted resource://gre/modules/NewTabUtils.sys.mjs NewTabUtils.uninit
++#ifdef MOZ_NORMANDY
+ category browser-quit-application-granted resource://normandy/Normandy.sys.mjs Normandy.uninit
++#endif
+ category browser-quit-application-granted resource://gre/modules/RFPHelper.sys.mjs RFPHelper.uninit
+ category browser-quit-application-granted resource:///modules/asrouter/ASRouterNewTabHook.sys.mjs ASRouterNewTabHook.destroy
+ category browser-quit-application-granted moz-src:///browser/components/search/SERPCategorization.sys.mjs SERPCategorization.uninit

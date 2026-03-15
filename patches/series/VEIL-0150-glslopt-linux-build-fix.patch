@@ -1,0 +1,62 @@
+diff --git a/Cargo.toml b/Cargo.toml
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -129,6 +129,9 @@
+ # Override terminal_size with a dummy crate that returns a fixed 80x25 terminal size.
+ terminal_size = { path = "build/rust/terminal_size" }
+ 
++# Local glslopt override to carry build fixes until upstream catches up.
++glslopt = { path = "third_party/rust/glslopt" }
++
+ # Patch bitflags 1.0 to 2.0
+ bitflags = { path = "build/rust/bitflags" }
+ 
+diff --git a/Cargo.lock b/Cargo.lock
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -2892,8 +2892,6 @@
+ [[package]]
+ name = "glslopt"
+ version = "0.1.12"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8ba4741358604ca0848c27ecc069d68e62e11cde81e38aac1da3c54b79ab5adf"
+ dependencies = [
+  "cc",
+ ]
+diff --git a/third_party/rust/glslopt/glsl-optimizer/include/c11/threads_posix.h b/third_party/rust/glslopt/glsl-optimizer/include/c11/threads_posix.h
+--- a/third_party/rust/glslopt/glsl-optimizer/include/c11/threads_posix.h
++++ b/third_party/rust/glslopt/glsl-optimizer/include/c11/threads_posix.h
+@@ -49,7 +49,9 @@
+ #include <pthread.h>
+ 
+ /*---------------------------- macros ----------------------------*/
++#if !defined(ONCE_FLAG_INIT)
+ #define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
++#endif
+ #ifdef INIT_ONCE_STATIC_INIT
+ #define TSS_DTOR_ITERATIONS PTHREAD_DESTRUCTOR_ITERATIONS
+ #else
+@@ -66,7 +68,9 @@
+ typedef pthread_t       thrd_t;
+ typedef pthread_key_t   tss_t;
+ typedef pthread_mutex_t mtx_t;
++#if !defined(__GLIBC__) || !__GLIBC_PREREQ(2, 43)
+ typedef pthread_once_t  once_flag;
++#endif
+ 
+ 
+ /*
+@@ -86,11 +90,13 @@
+ 
+ /*--------------- 7.25.2 Initialization functions ---------------*/
+ // 7.25.2.1
++#if !defined(__GLIBC__) || !__GLIBC_PREREQ(2, 43)
+ static inline void
+ call_once(once_flag *flag, void (*func)(void))
+ {
+     pthread_once(flag, func);
+ }
++#endif
+ 
+ 
+ /*------------- 7.25.3 Condition variable functions -------------*/

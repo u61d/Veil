@@ -1,0 +1,155 @@
+--- a/browser/base/content/browser-main.js
++++ b/browser/base/content/browser-main.js
+@@ -9,9 +9,6 @@
+   Services.scriptloader.loadSubScript("chrome://browser/content/browser-init.js", this);
+   Services.scriptloader.loadSubScript("chrome://global/content/contentAreaUtils.js", this);
+   Services.scriptloader.loadSubScript("chrome://browser/content/browser-captivePortal.js", this);
+-  if (AppConstants.MOZ_DATA_REPORTING) {
+-    Services.scriptloader.loadSubScript("chrome://browser/content/browser-data-submission-info-bar.js", this);
+-  }
+   if (!AppConstants.MOZILLA_OFFICIAL) {
+     Services.scriptloader.loadSubScript("chrome://browser/content/browser-development-helpers.js", this);
+   }
+--- a/browser/base/content/browser-init.js
++++ b/browser/base/content/browser-init.js
+@@ -574,10 +574,6 @@
+ 
+     FullScreen.init();
+ 
+-    if (AppConstants.MOZ_DATA_REPORTING) {
+-      gDataNotificationInfoBar.init();
+-    }
+-
+     if (!AppConstants.MOZILLA_OFFICIAL) {
+       DevelopmentHelpers.init();
+     }
+--- a/browser/components/preferences/privacy.js
++++ b/browser/components/preferences/privacy.js
+@@ -1146,10 +1146,6 @@
+ if (AppConstants.MOZ_DATA_REPORTING) {
+   Preferences.addAll([
+     // Preference instances for prefs that we need to monitor while the page is open.
+-    { id: PREF_OPT_OUT_STUDIES_ENABLED, type: "bool" },
+-    { id: PREF_ADDON_RECOMMENDATIONS_ENABLED, type: "bool" },
+-    { id: PREF_UPLOAD_ENABLED, type: "bool" },
+-    { id: "datareporting.usage.uploadEnabled", type: "bool" },
+     { id: "dom.private-attribution.submission.enabled", type: "bool" },
+   ]);
+ }
+@@ -3588,23 +3584,6 @@
+ 
+     this.initDataCollection();
+ 
+-    if (AppConstants.MOZ_DATA_REPORTING) {
+-      this.updateSubmitHealthReportFromPref();
+-      Preferences.get(PREF_UPLOAD_ENABLED).on(
+-        "change",
+-        gPrivacyPane.updateSubmitHealthReportFromPref
+-      );
+-      setEventListener(
+-        "submitHealthReportBox",
+-        "command",
+-        gPrivacyPane.updateSubmitHealthReportToPref
+-      );
+-      if (AppConstants.MOZ_NORMANDY) {
+-        this.initOptOutStudyCheckbox();
+-      }
+-      this.initAddonRecommendationsCheckbox();
+-    }
+-
+     if (SelectableProfileService.currentProfile) {
+       let dataCollectionPrefs = PreferencesBackupResource.dataCollectionPrefs;
+       for (let pref of dataCollectionPrefs) {
+--- a/browser/components/preferences/privacy.inc.xhtml
++++ b/browser/components/preferences/privacy.inc.xhtml
+@@ -590,20 +590,6 @@
+             data-l10n-id="preferences-view-profiles"/>
+   </description>
+ #ifdef MOZ_DATA_REPORTING
+-  <hbox id="telemetry-container" class="info-box-container smaller-font-size" hidden="true">
+-    <hbox class="info-icon-container">
+-      <html:img class="info-icon"></html:img>
+-    </hbox>
+-    <description>
+-      <html:span id="telemetryDisabledDescription"
+-                 data-l10n-id="collection-health-report-telemetry-disabled"/>
+-      <html:a is="moz-support-link"
+-              support-page="telemetry-clientid"
+-              class="learnMore"
+-              data-l10n-id="collection-health-report-telemetry-disabled-link"/>
+-    </description>
+-  </hbox>
+-
+   <html:moz-message-bar id="backup-multi-profile-warning-message-bar"
+                    type="info"
+                    dismissable="true"
+@@ -617,69 +603,6 @@
+   </html:moz-message-bar>
+ 
+   <vbox data-subcategory="reports">
+-    <checkbox id="submitHealthReportBox"
+-              data-l10n-id="collection-health-report2"/>
+-    <description class="indent tip-caption">
+-#ifdef MOZ_TELEMETRY_REPORTING
+-      <html:span data-l10n-id="collection-health-report-description"/>
+-#else # !MOZ_TELEMETRY_REPORTING
+-      <html:span data-l10n-id="collection-health-report-disabled2"/>
+-#endif # MOZ_TELEMETRY_REPORTING
+-      <html:a id="FHRLearnMore"
+-              is="moz-support-link"
+-              support-page="technical-and-interaction-data"
+-              class="learnMore"
+-              data-l10n-id="collection-health-report-link"/>
+-    </description>
+-
+-    <vbox class="indent">
+-      <checkbox id="addonRecommendationEnabled"
+-                data-l10n-id="addon-recommendations2"/>
+-      <description class="indent tip-caption">
+-        <html:span data-l10n-id="addon-recommendations-description"/>
+-        <html:a is="moz-support-link"
+-                id="addonRecommendationLearnMore"
+-                class="learnMore"
+-                support-page="personalized-addons"/>
+-      </description>
+-
+-#ifdef MOZ_NORMANDY
+-      <checkbox id="optOutStudiesEnabled"
+-                data-l10n-id="collection-studies2"/>
+-      <description class="indent tip-caption">
+-        <html:span data-l10n-id="collection-studies-description"/>
+-        <html:a id="viewShieldStudies"
+-                href="about:studies"
+-                class="learnMore"
+-                target="_blank"
+-                data-l10n-id="collection-studies-link"/>
+-      </description>
+-#endif # MOZ_NORMANDY
+-    </vbox>
+-#ifdef MOZ_NORMANDY
+-    <checkbox id="enableNimbusRollouts"
+-              data-l10n-id="nimbus-rollouts-enabled"
+-              preference="nimbus.rollouts.enabled"/>
+-    <description class="indent tip-caption">
+-      <html:span data-l10n-id="nimbus-rollouts-enabled-description" />
+-      <html:a is="moz-support-link"
+-              id="enableRolloutsLearnMore"
+-              class="learnMore"
+-              support-page="remote-improvements" />
+-    </description>
+-#endif # MOZ_NORMANDY
+-
+-    <checkbox id="submitUsagePingBox"
+-              data-l10n-id="collection-usage-ping"
+-              preference="datareporting.usage.uploadEnabled"/>
+-    <description class="indent tip-caption">
+-      <html:span data-l10n-id="collection-usage-ping-description"/>
+-      <html:a id="submitUsagePingLearnMore"
+-              is="moz-support-link"
+-              class="learnMore"
+-              support-page="usage-ping-settings"/>
+-    </description>
+-
+ #ifdef MOZ_CRASHREPORTER
+     <checkbox id="automaticallySubmitCrashesBox"
+               data-l10n-id="collection-backlogged-crash-reports2"

@@ -1,0 +1,9 @@
+upstream/
+artifacts/
+obj-*/
+dist/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+mozinfo.json
