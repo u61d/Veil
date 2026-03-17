@@ -1,0 +1,56 @@
+site_name: Veil Docs
+site_description: Practical docs for the Veil Firefox fork
+site_url: https://u61d.github.io/Veil/
+repo_url: https://github.com/u61d/Veil
+repo_name: u61d/Veil
+docs_dir: docs-site
+site_dir: site
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+nav:
+  - Overview: index.md
+  - What Veil is: what-veil-is.md
+  - What Veil is not: what-veil-is-not.md
+  - Install: install.md
+  - Linux: linux.md
+  - Build from source: build-from-source.md
+  - Verification: verification.md
+  - Known limitations: known-limitations.md
+  - Release notes: release-notes.md
+  - Contributing: contributing.md

@@ -4,6 +4,8 @@ obj-*/
 dist/
 __pycache__/
 .pytest_cache/
+.venv-docs/
+site/
 *.pyc
 .DS_Store
 mozinfo.json
