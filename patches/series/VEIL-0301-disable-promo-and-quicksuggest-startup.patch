@@ -1,0 +1,99 @@
+--- a/browser/app/profile/firefox.js
++++ b/browser/app/profile/firefox.js
+@@ -520,7 +520,7 @@
+ // [2] browser.urlbar.quicksuggest.online.available
+ // [3] browser.urlbar.merino.ohttpConfigURL
+ // [4] browser.urlbar.merino.ohttpRelayURL
+-pref("browser.urlbar.quicksuggest.online.enabled", true, sticky);
++pref("browser.urlbar.quicksuggest.online.enabled", false, sticky);
+ 
+ // Whether the Firefox Suggest contextual opt-in result is enabled.
+ pref("browser.urlbar.quicksuggest.contextualOptIn", false);
+@@ -555,7 +555,7 @@
+ 
+ // Whether Firefox Suggest will use the new Rust backend instead of the original
+ // JS backend.
+-pref("browser.urlbar.quicksuggest.rustEnabled", true);
++pref("browser.urlbar.quicksuggest.rustEnabled", false);
+ 
+ // The index of sponsored Firefox Suggest results within the Firefox Suggest
+ // section when "Show search suggestions ahead of browsing history in address bar
+@@ -1392,7 +1392,7 @@
+ // Whether we had to hide the "Firefox Labs" section because it would be empty.
+ pref("browser.preferences.experimental.hidden", false);
+ // Whether we show the "More from Mozilla" section.
+-pref("browser.preferences.moreFromMozilla", true);
++pref("browser.preferences.moreFromMozilla", false);
+ // Whether we show the "AI Controls" pane.
+ pref("browser.preferences.aiControls", true);
+ // Whether to show unavailable AI controls regardless of region/locale
+--- a/browser/components/BrowserComponents.manifest
++++ b/browser/components/BrowserComponents.manifest
+@@ -68,7 +68,6 @@
+ category browser-idle-startup resource://gre/modules/psm/RemoteSecuritySettings.sys.mjs RemoteSecuritySettings.init
+ category browser-idle-startup moz-src:///browser/components/tabbrowser/TabUnloader.sys.mjs TabUnloader.init
+ category browser-idle-startup resource:///modules/GenAI.sys.mjs GenAI.init
+-category browser-idle-startup moz-src:///browser/components/urlbar/QuickSuggest.sys.mjs QuickSuggest.init
+ category browser-idle-startup moz-src:///browser/components/urlbar/UrlbarSearchTermsPersistence.sys.mjs UrlbarSearchTermsPersistence.init
+ category browser-idle-startup moz-src:///browser/components/search/SERPCategorization.sys.mjs SERPCategorization.init
+ category browser-idle-startup resource://gre/modules/ContentRelevancyManager.sys.mjs ContentRelevancyManager.init
+--- a/browser/components/preferences/preferences.js
++++ b/browser/components/preferences/preferences.js
+@@ -10,7 +10,6 @@
+ /* import-globals-from privacy.js */
+ /* import-globals-from sync.js */
+ /* import-globals-from experimental.js */
+-/* import-globals-from moreFromMozilla.js */
+ /* import-globals-from findInPage.js */
+ /* import-globals-from /browser/base/content/utilityOverlay.js */
+ /* import-globals-from /toolkit/content/preferencesBindings.js */
+@@ -351,13 +350,6 @@
+     document.getElementById("category-experimental").hidden = true;
+   }
+ 
+-  NimbusFeatures.moreFromMozilla.recordExposureEvent({ once: true });
+-  if (NimbusFeatures.moreFromMozilla.getVariable("enabled")) {
+-    document.getElementById("category-more-from-mozilla").hidden = false;
+-    gMoreFromMozillaPane.option =
+-      NimbusFeatures.moreFromMozilla.getVariable("template");
+-    register_module("paneMoreFromMozilla", gMoreFromMozillaPane);
+-  }
+   // The Sync category needs to be the last of the "real" categories
+   // registered and inititalized since many tests wait for the
+   // "sync-pane-loaded" observer notification before starting the test.
+--- a/browser/components/preferences/preferences.xhtml
++++ b/browser/components/preferences/preferences.xhtml
+@@ -46,7 +46,6 @@
+   <link rel="localization" href="browser/browser.ftl"/>
+     <!-- Used by fontbuilder.js -->
+   <link rel="localization" href="browser/preferences/fonts.ftl"/>
+-  <link rel="localization" href="browser/preferences/moreFromMozilla.ftl"/>
+   <link rel="localization" href="browser/preferences/preferences.ftl"/>
+   <link rel="localization" href="toolkit/branding/brandings.ftl"/>
+   <link rel="localization" href="toolkit/firefoxlabs/features.ftl"/>
+@@ -185,17 +184,6 @@
+           <image class="category-icon"/>
+           <label class="category-name" flex="1" data-l10n-id="settings-pane-labs-title"></label>
+         </richlistitem>
+-        <richlistitem id="category-more-from-mozilla"
+-                      class="category"
+-                      hidden="true"
+-                      data-l10n-id="more-from-moz-category"
+-                      data-l10n-attrs="tooltiptext"
+-                      value="paneMoreFromMozilla"
+-                      align="center">
+-          <image class="category-icon"/>
+-          <label class="category-name" flex="1" data-l10n-id="more-from-moz-title"></label>
+-        </richlistitem>
+-
+         <!-- The following <richlistitem> elements are hidden from the list of items via the hidden-category class.
+             The intent is that they act as sub-pages, accessible from the UI of one of the main pages, but are
+             not listed as primary pages themselves via the selector.
+@@ -265,7 +253,6 @@
+ #include containers.inc.xhtml
+ #include sync.inc.xhtml
+ #include experimental.inc.xhtml
+-#include moreFromMozilla.inc.xhtml
+         </vbox>
+       </vbox>
+     </vbox>

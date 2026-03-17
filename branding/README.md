@@ -1,13 +1,11 @@
-# Veil Branding Placeholders
+# Veil Branding Assets
 
-This directory is reserved for Veil-owned redistribution assets.
+This directory holds Veil-owned redistribution assets.
 
-Planned contents:
+Current contents:
 
-- application icons
-- wordmark and product lockup
-- installer graphics
-- OS-specific packaging assets
-- replacement support and release metadata
+- `icon-source/`: original source pack kept as reference
+- `icons/`: canonical and release-use icon assets copied from the source pack, with `veil-icon-1024.png` as the canonical source
+- `veil-icon.svg`: earlier placeholder icon, no longer used by the Linux installer
 
 Do not copy Mozilla or Firefox branding here for modified redistribution.

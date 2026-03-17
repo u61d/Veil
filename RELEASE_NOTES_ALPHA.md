@@ -9,6 +9,10 @@ Veil Alpha is the first release where the current privacy claims are tied to bui
 - Clean-profile startup traffic is reduced to the retained Mozilla endpoints used for Remote Settings and content-signature.
 - Push startup stays deferred on clean profiles, and the upstream `dom/push` mochitest suite still passes against the current Veil build.
 - Alpha smoke checks pass for first launch, browsing, tabs, downloads, settings, temporary extensions, service workers, and private-window launch.
+- Linux local builds now have a Veil-branded launcher script, a separate default profile path, and a user-local desktop entry installer.
+- The Linux launcher now exports `MOZ_APP_REMOTINGNAME=veil` so local menu and window matching do not reuse the stock Firefox instance name.
+- The Linux installer and runtime branding now use the provided Veil PNG icon set instead of the earlier local placeholder icon.
+- The Linux release tarball bundles `run-veil.sh`, `install-desktop-entry.sh`, `README-Linux.md`, and the Veil icon set for a normal local install.
 
 ## What We Verified
 

@@ -1,0 +1,83 @@
+--- a/toolkit/locales/en-US/toolkit/branding/brandings.ftl
++++ b/toolkit/locales/en-US/toolkit/branding/brandings.ftl
+@@ -42,16 +42,14 @@
+ # and kept in English.
+ -firefox-suggest-brand-name = Firefox Suggest
+ 
+-# ”Home" can be localized, “Firefox” must be treated as a brand
++# ”Home" can be localized, “Veil” must be treated as a brand
+ # and kept in English.
+--firefox-home-brand-name = Firefox Home
++-firefox-home-brand-name = Veil Home
+ 
+ # View" can be localized, “Firefox” must be treated as a brand
+ # and kept in English.
+ -firefoxview-brand-name = Firefox View
+ 
+-# Firefox Labs is the name for a page in Settings to allow users to learn about
+-# experimental and in-development features, and turn those features on and off.
+-# The "Labs" portion can be localized, “Firefox” must be treated as a brand
+-# and kept in English.
+--firefoxlabs-brand-name = Firefox Labs
++# Veil Labs is the name for the page in Settings that exposes experimental
++# and in-development features.
++-firefoxlabs-brand-name = Veil Labs
+--- a/browser/locales/en-US/browser/preferences/preferences.ftl
++++ b/browser/locales/en-US/browser/preferences/preferences.ftl
+@@ -1033,15 +1033,15 @@
+ home-prefs-timer-header =
+     .label = Timer
+ 
+-# "Support" here means to help sustain or contribute to something, especially through funding or sponsorship.
++# "Sponsored content" covers the optional sponsored items on the home surface.
+ home-prefs-support-firefox-header =
+-    .label = Support { -brand-product-name }
++    .label = Sponsored content
+ 
+-home-prefs-mission-message = Our sponsors support our mission to build a better web
++home-prefs-mission-message = Sponsored shortcuts and stories may appear on this page
+ home-prefs-mission-message-learn-more-link = Find out how
+ 
+ home-prefs-mission-message2 =
+-    .message = Our sponsors support our mission to build a better web.
++    .message = Sponsored shortcuts and stories may appear on this page.
+ 
+ home-prefs-manage-topics-link = Manage topics
+ 
+--- a/browser/locales/en-US/browser/newtab/newtab.ftl
++++ b/browser/locales/en-US/browser/newtab/newtab.ftl
+@@ -637,7 +637,7 @@
+ # Strings for the default promo card
+ 
+ newtab-promo-card-title = Support { -brand-product-name }
+-newtab-promo-card-body = Our sponsors support our mission to build a better web
++newtab-promo-card-body = Sponsored stories may appear on this page
+ newtab-promo-card-cta = Learn more
+ newtab-promo-card-dismiss-button =
+     .title = Dismiss
+--- a/browser/components/preferences/config/home-startup.mjs
++++ b/browser/components/preferences/config/home-startup.mjs
+@@ -876,23 +876,6 @@
+             id: "sponsoredStories",
+             l10nId: "home-prefs-recommended-by-option-sponsored-stories",
+           },
+-          {
+-            id: "supportFirefoxPromo",
+-            l10nId: "home-prefs-mission-message2",
+-            control: "moz-promo",
+-            options: [
+-              {
+-                control: "a",
+-                l10nId: "home-prefs-mission-message-learn-more-link",
+-                slot: "support-link",
+-                controlAttrs: {
+-                  is: "moz-support-link",
+-                  "support-page": "sponsor-privacy",
+-                  "utm-content": "inproduct",
+-                },
+-              },
+-            ],
+-          },
+         ],
+       },
+       {

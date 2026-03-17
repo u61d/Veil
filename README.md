@@ -45,6 +45,19 @@ python3 scripts/smoke_alpha_release.py --output-json artifacts/release-verify/ve
 
 The first command reruns the patch replay check, runtime verifier, backup-surface verifier, and clean-profile startup audit. The second runs the Alpha smoke pass.
 
+## Linux Local Run
+
+For the current Linux build:
+
+```bash
+./scripts/run_veil_local.sh
+./scripts/install_veil_linux_desktop.sh
+```
+
+The launcher uses its own profile path under `~/.local/share/veil/profile` by default so it does not reuse an existing Firefox profile. The desktop installer writes a user-local `veil.desktop` entry and installs the real Veil PNG icon set from `branding/icons/` into the local `hicolor` icon theme directories. The launcher also exports `MOZ_APP_REMOTINGNAME=veil` so Linux menu and window matching stay separate from a stock Firefox instance.
+
+For the packaged Linux release tarball, use the bundled `run-veil.sh` and `install-desktop-entry.sh` files. The plain install note is in [docs/linux-install.md](docs/linux-install.md).
+
 Key docs:
 
 - [release claims](docs/release-claims.md)
@@ -57,7 +70,7 @@ Key docs:
 - `docs/`: threat model, audit matrices, release notes, maintenance notes
 - `patches/`: Veil patch queue and machine-readable patch inventory
 - `scripts/`: replay, verification, audit, and smoke-test helpers
-- `branding/`: placeholders for redistribution assets
+- `branding/`: Veil-owned icons and other redistribution assets
 
 ## Release Notes
 

@@ -1,6 +1,6 @@
 # Veil Build Notes
 
-Status for this note: `2026-03-14`, Linux x86_64 workspace build attempt.
+Status for this note: `2026-03-15`, Linux x86_64 workspace build attempt.
 
 ## Upstream source
 
@@ -103,3 +103,44 @@ MOZCONFIG=browser/config/mozconfigs/linux64/veil \
   - The finished package exposes built `firefox.js`, `greprefs.js`, `BrowserComponents.manifest`, and a usable `xpcshell` AppConstants probe.
   - The verification script still warns that `privacy.inc.xhtml` was not found as a standalone installed artifact.
 - Clean-profile headless startup works, but it writes telemetry- and experiment-related local state. That means the current Veil milestone is build-backed and measurable, not a finished zero-telemetry product claim.
+
+## 2026-03-15 Linux clean rebuild and branding refresh
+
+- Root cause: Arch system `clang` 22 expects `/usr/lib/clang/22/lib/wasm32-unknown-wasi/libclang_rt.builtins.a`, which is provided by the `wasi-compiler-rt` package and was not installed in this workspace.
+- Upstream staged `clang` was not enough on its own because the staged compiler entry point still resolved to the system resource dir, so Firefox's wasm linker probe continued to look under `/usr/lib/clang/22/...`.
+- Fix: `scripts/rebuild_veil_linux_clean.sh` now overlays a local clang resource dir under `upstream/toolchain/local-clang-resource`, injects the staged WASI builtins archive there, and uses `~/.mozbuild/clang/bin/llvm-*` for the working LLVM binutils.
+- Clean rebuild command:
+
+```bash
+./scripts/rebuild_veil_linux_clean.sh
+```
+
+- Result: the clobbered Linux build completed successfully and regenerated Veil-branded runtime metadata.
+- Verified generated identity after the clean rebuild:
+  - `application.ini`: `Vendor=Veil`, `Name=Veil`, `RemotingName=veil`
+  - `obj-veil/dist/bin/veil --version`: `Veil Veil 150.0a1`
+- Remaining visible Home/New Tab strings were then traced to exact locale/config owners and refreshed in the packaged build:
+  - `toolkit/locales/en-US/toolkit/branding/brandings.ftl`
+  - `browser/locales/en-US/browser/preferences/preferences.ftl`
+  - `browser/locales/en-US/browser/newtab/newtab.ftl`
+  - `browser/components/preferences/config/home-startup.mjs`
+- Packaged verification after that refresh shows:
+  - `Veil Home`
+  - `Veil Labs`
+  - `Sponsored content`
+  - `Sponsored shortcuts and stories may appear on this page`
+  - `Sponsored stories may appear on this page`
+
+## 2026-03-16 Settings refresh after narrow branding changes
+
+- For Settings-only XHTML, JS, pref, and localization refreshes, the working incremental command in this objdir is:
+
+```bash
+./mach build faster --allow-subdirectory-build
+```
+
+- `./mach build faster` without `--allow-subdirectory-build` was ignored here and left `dist/bin` stale.
+- Verified after the successful faster build:
+  - `browser/defaults/preferences/firefox.js` now carries `pref("signon.firefoxRelay.feature", "");`
+  - `browser/chrome/browser/content/browser/preferences/preferences.xhtml` no longer contains the `sync-mobile-promo` block
+  - Live `about:preferences` checks show the Relay and Firefox mobile promo surfaces gone from the visible Settings UI

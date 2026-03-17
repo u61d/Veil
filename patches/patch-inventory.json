@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-15",
+  "generated": "2026-03-16",
   "upstream": {
     "repository": "https://github.com/mozilla-firefox/firefox",
     "branch": "main",
@@ -256,19 +256,104 @@
     },
     {
       "id": "VEIL-0300",
-      "title": "Veil branding and distribution metadata",
+      "title": "Rebrand the Linux runtime from upstream unofficial branding to Veil",
       "category": "branding",
-      "status": "planned",
-      "path": null,
+      "status": "authored",
+      "path": "patches/series/VEIL-0300-rebrand-runtime-as-veil.patch",
       "upstream_files": [
+        "browser/moz.configure",
+        "browser/config/mozconfigs/linux64/veil",
+        "browser/app/distribution/distribution.ini",
         "browser/branding/unofficial/configure.sh",
-        "browser/branding/unofficial/pref/firefox-branding.js"
+        "browser/branding/unofficial/locales/en-US/brand.ftl",
+        "browser/branding/unofficial/locales/en-US/brand.properties",
+        "browser/branding/unofficial/pref/firefox-branding.js",
+        "browser/branding/unofficial/content/about-logo.svg",
+        "browser/branding/unofficial/content/about-wordmark.svg",
+        "browser/branding/unofficial/content/firefox-wordmark.svg",
+        "browser/base/content/aboutDialog.css",
+        "browser/extensions/newtab/css/activity-stream.css",
+        "browser/extensions/newtab/css/nova/activity-stream.css"
       ],
       "verification": [
-        "future-packaging-checks"
+        "application.ini",
+        "veil --version",
+        "about-preferences-screenshot",
+        "current-linux-runtime",
+        "headless-startup-log"
       ],
       "docs": [
-        "docs/legal-compliance-checklist.md"
+        "docs/build-notes.md",
+        "docs/legal-compliance-checklist.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0301",
+      "title": "Disable leftover Mozilla promo surfaces and Quick Suggest startup init",
+      "category": "network-behavior",
+      "status": "authored",
+      "path": "patches/series/VEIL-0301-disable-promo-and-quicksuggest-startup.patch",
+      "upstream_files": [
+        "browser/app/profile/firefox.js",
+        "browser/components/BrowserComponents.manifest",
+        "browser/components/preferences/preferences.js",
+        "browser/components/preferences/preferences.xhtml"
+      ],
+      "verification": [
+        "current-linux-runtime",
+        "startup-log-check"
+      ],
+      "docs": [
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0302",
+      "title": "Rebrand remaining Home, New Tab, and Labs text surfaces",
+      "category": "branding",
+      "status": "authored",
+      "path": "patches/series/VEIL-0302-rebrand-home-and-newtab-surfaces.patch",
+      "upstream_files": [
+        "toolkit/locales/en-US/toolkit/branding/brandings.ftl",
+        "browser/locales/en-US/browser/preferences/preferences.ftl",
+        "browser/locales/en-US/browser/newtab/newtab.ftl",
+        "browser/components/preferences/config/home-startup.mjs"
+      ],
+      "verification": [
+        "packaged-locale-inspection",
+        "about-preferences-screenshot",
+        "headless-startup-log"
+      ],
+      "docs": [
+        "docs/build-notes.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
+      ]
+    },
+    {
+      "id": "VEIL-0303",
+      "title": "Clean remaining Firefox-branded Settings surfaces",
+      "category": "branding",
+      "status": "authored",
+      "path": "patches/series/VEIL-0303-clean-settings-branding-surfaces.patch",
+      "upstream_files": [
+        "browser/app/profile/firefox.js",
+        "browser/components/preferences/sync.js",
+        "browser/components/preferences/sync.inc.xhtml"
+      ],
+      "verification": [
+        "mach-build-faster-refresh",
+        "artifacts/runtime-checks/20260316-settings-cleanup/settings-visible-text.json",
+        "artifacts/runtime-checks/20260316-settings-search/settings-search-visible-text.json",
+        "artifacts/runtime-checks/20260316-settings-mailto-xdg/mailto-default-visible-text.json"
+      ],
+      "docs": [
+        "docs/build-notes.md",
+        "docs/research-log.md",
+        "docs/decision-log.md"
       ]
     }
   ]

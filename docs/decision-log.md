@@ -157,3 +157,52 @@
 - Decision: Veil removes data-reporting upload prefs, policy state, and cached usage-profile identifiers from Veil-generated backup exports, while leaving crash auto-submit and backup schema behavior untouched.
 - Why: Backup export is one of the few remaining user-initiated runtime paths that could still serialize data-reporting state even after clean-profile startup had been hardened.
 - Consequence: New Veil backups no longer carry those pref surfaces by default, and the remaining `MOZ_DATA_REPORTING` caveat is narrower still: compile-time aggregate state plus a small set of deferred backup-schema and crash-UI surfaces.
+
+## D-0023: Rebrand the local Linux runtime by replacing upstream unofficial branding in place
+
+- Date: `2026-03-15`
+- Decision: Veil reuses the upstream `browser/branding/unofficial` bundle as its Linux branding base, but replaces the display name, localized brand strings, wordmarks, logo SVG, and update URLs with Veil-owned values.
+- Why: The current Alpha build was still presenting itself as Nightly in user-visible Linux runtime surfaces, which is both confusing for local use and out of scope with Veil's own product identity.
+- Consequence: The current Linux runtime can present itself as Veil without introducing a large new branding directory or a separate asset pipeline before the rest of the packaging work is ready.
+
+## D-0024: Remove inactive Mozilla promo panes instead of leaving them to fail at runtime
+
+- Date: `2026-03-15`
+- Decision: Veil disables the More From Mozilla preferences pane and removes Quick Suggest from idle startup rather than leaving those upstream surfaces loaded but mostly off.
+- Why: With region lookup already disabled, `moreFromMozilla.js` was still assuming `Region.home` existed, and Quick Suggest was still idle-starting even though Veil leaves the feature off by default.
+- Consequence: Clean Linux runtime logs are quieter, the preferences UI no longer exposes leftover Mozilla promo content, and core search remains intact because the Quick Suggest modules stay available for explicit settings code paths instead of startup initialization.
+
+## D-0025: Use Linux launcher-level remoting-name override while clean reconfigure remains blocked
+
+- Date: `2026-03-15`
+- Decision: Veil's local Linux launcher exports `MOZ_APP_REMOTINGNAME=veil`, and the desktop entry uses `StartupWMClass=veil`.
+- Why: The current workspace still cannot complete a clean reconfigure because the staged clang toolchain is missing the WASI builtins archive needed by Firefox's wasm linker probe, so generated runtime metadata still carries upstream app identifiers.
+- Consequence: Local Linux menu and window-class matching can use `veil` immediately, while the remaining `Firefox` and `Nightly` compiled identifiers stay documented as a build-environment blocker rather than being hidden or misrepresented.
+
+## D-0026: Fix the Arch Linux WASI blocker in the local build wrapper instead of mutating the host toolchain
+
+- Date: `2026-03-15`
+- Decision: Veil's Linux rebuild script overlays a local clang resource dir and supplies a usable WASI builtins archive there, instead of requiring the workspace host to install or replace Arch system toolchain packages before Veil can build.
+- Why: The actual missing artifact was the Arch `wasi-compiler-rt` package payload, but Veil needs a reproducible workspace-local fix that does not depend on mutating the host package set.
+- Consequence: `./scripts/rebuild_veil_linux_clean.sh` can clobber and rebuild Veil successfully in the current workspace, and the generated runtime identity now reflects Veil instead of upstream Nightly branding.
+
+## D-0027: Rebrand only the remaining visible Home, New Tab, and Labs surfaces after the clean rebuild
+
+- Date: `2026-03-15`
+- Decision: Veil patches the exact locale and settings-configuration owners for `Firefox Home`, the Home sponsor mission copy, and the visible `Firefox Labs` label instead of continuing with broad string replacement.
+- Why: After the clean rebuild fixed generated `application.ini` identity, the remaining user-facing Firefox branding was limited to a short list of concrete Home/New Tab/Settings surfaces that could be traced and verified directly from the packaged runtime.
+- Consequence: The Linux build now presents `Veil Home`, `Veil Labs`, and neutral sponsored-content wording in the packaged runtime without changing the underlying Home/New Tab feature set.
+
+## D-0028: Treat the Applications default-handler label as desktop integration, not a Veil branding string
+
+- Date: `2026-03-16`
+- Decision: Veil does not patch the `Use Firefox (default)` label in Applications settings at the source level.
+- Why: The label comes from the host desktop default-handler description, not from a Firefox-owned branding string. With a temporary `veil.desktop` mailto default, the same Settings UI shows `Use Veil (default)` without any source change.
+- Consequence: Linux packaging and local desktop registration need to install a real `veil.desktop` handler before that Settings row will reflect Veil on user systems.
+
+## D-0029: Hide Firefox-specific Settings integrations that do not map to Veil services
+
+- Date: `2026-03-16`
+- Decision: Veil hides the Firefox Relay checkbox by default and removes the Sync page's Firefox mobile download promo instead of renaming those Mozilla services.
+- Why: `Firefox Relay` is a real Mozilla service name and would be inaccurate if rebranded. The Android/iOS promo explicitly advertises Firefox mobile products, which Veil does not ship.
+- Consequence: The visible Settings UI no longer suggests a Veil-branded Relay service or promotes Firefox mobile downloads, while core Sync and password behavior stay intact.
