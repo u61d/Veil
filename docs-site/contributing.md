@@ -34,19 +34,25 @@ mkdocs build --strict
 
 ## How Pages deploys
 
-The repo uses a GitHub Actions workflow at `.github/workflows/docs.yml`.
+The repo still carries a GitHub Actions workflow at `.github/workflows/docs.yml`, but GitHub-hosted deployment is currently blocked by the account billing lock.
 
-On pushes to `main` that touch the docs-site files or the docs workflow:
+The current working publish path is branch-based Pages publishing from the `gh-pages` branch root.
 
-1. the workflow installs the pinned docs toolchain from `requirements-docs.txt`
-2. it runs `mkdocs build --strict`
-3. it uploads the built site to GitHub Pages
+Refresh that branch like this:
 
-Pull requests build the docs but do not deploy them.
+```bash
+./scripts/build_docs_site.sh
+```
+
+That writes the static site to `site/` and adds the `.nojekyll` file needed for branch-based GitHub Pages publishing.
+
+Then copy the built `site/` output to the `gh-pages` branch root, commit it there, and push that branch.
 
 If Pages is not configured yet, set:
 
-- **Settings → Pages → Build and deployment → Source** = `GitHub Actions`
+- **Settings → Pages → Build and deployment → Source** = `Deploy from a branch`
+- **Branch** = `gh-pages`
+- **Folder** = `/ (root)`
 
 ## Keep the wording sober
 
