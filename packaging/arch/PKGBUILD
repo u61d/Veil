@@ -1,0 +1,124 @@
+# Maintainer: Veil maintainers
+
+pkgname=veil-bin
+pkgver=0.1.0alpha1
+pkgrel=1
+pkgdesc='Prebuilt Veil Alpha browser for Linux'
+arch=('x86_64')
+url='https://github.com/u61d/Veil'
+license=('MPL-2.0')
+depends=(
+  'alsa-lib'
+  'at-spi2-core'
+  'bash'
+  'cairo'
+  'dbus'
+  'ffmpeg'
+  'fontconfig'
+  'freetype2'
+  'gdk-pixbuf2'
+  'glib2'
+  'glibc'
+  'gtk3'
+  'hicolor-icon-theme'
+  'libgcc'
+  'libpulse'
+  'libstdc++'
+  'libx11'
+  'libxcb'
+  'libxcomposite'
+  'libxdamage'
+  'libxext'
+  'libxfixes'
+  'libxrandr'
+  'libxss'
+  'libxt'
+  'mime-types'
+  'nspr'
+  'nss'
+  'pango'
+  'ttf-font'
+)
+optdepends=(
+  'libnotify: desktop notifications'
+  'speech-dispatcher: text to speech'
+  'xdg-desktop-portal: screen sharing on Wayland'
+)
+provides=('veil')
+conflicts=('veil')
+options=('!strip')
+
+_tag='v0.1.0-alpha1'
+_asset="veil-alpha1-linux-${CARCH}.tar.gz"
+_bundle="veil-alpha1-linux-${CARCH}"
+
+source=(
+  "${_asset}::https://github.com/u61d/Veil/releases/download/${_tag}/${_asset}"
+  'veil.sh'
+  'veil.desktop'
+)
+sha256sums=(
+  'e17aa4d6bf9a2d027c1b4e90e938035e41c5d6c4175b43ee59000ed03fb8eefd'
+  '4510168b24a22d0d8bba892d12594df88b1649157206171db5e6c8a52465bdb1'
+  '760d8232d4eef6e3b1d3150eda49c22d2a197c85190674e224f34328680b6965'
+)
+
+package() {
+  local bundle="${srcdir}/${_bundle}"
+  local runtime_src="${bundle}/veil"
+  local docdir="${pkgdir}/usr/share/doc/${pkgname}"
+
+  install -dm755 "${pkgdir}/opt/veil" \
+                 "${pkgdir}/usr/bin" \
+                 "${pkgdir}/usr/share/applications" \
+                 "${pkgdir}/usr/share/doc/${pkgname}"
+
+  cp -a "${runtime_src}/." "${pkgdir}/opt/veil/"
+  rm -f "${pkgdir}/opt/veil/.lldbinit" \
+        "${pkgdir}/opt/veil/.mkdir.done" \
+        "${pkgdir}/opt/veil/.parentlock"
+  rm -rf "${pkgdir}/opt/veil/gtest" \
+         "${pkgdir}/opt/veil/gmp-fake" \
+         "${pkgdir}/opt/veil/gmp-fakeopenh264" \
+         "${pkgdir}/opt/veil/moz-src"
+  rm -f "${pkgdir}/opt/veil"/BadCertAndPinningServer \
+        "${pkgdir}/opt/veil"/DelegatedCredentialsServer \
+        "${pkgdir}/opt/veil"/EncryptedClientHelloServer \
+        "${pkgdir}/opt/veil"/EventArtifactDefinitions.json \
+        "${pkgdir}/opt/veil"/FaultyServer \
+        "${pkgdir}/opt/veil"/GenerateOCSPResponse \
+        "${pkgdir}/opt/veil"/OCSPStaplingServer \
+        "${pkgdir}/opt/veil"/SanctionsTestServer \
+        "${pkgdir}/opt/veil"/ScalarArtifactDefinitions.json \
+        "${pkgdir}/opt/veil"/ShowSSEConfig \
+        "${pkgdir}/opt/veil"/SmokeDMD \
+        "${pkgdir}/opt/veil"/WriteArgument \
+        "${pkgdir}/opt/veil"/certutil \
+        "${pkgdir}/opt/veil"/dependentlibs.list.gtest \
+        "${pkgdir}/opt/veil"/dmd.py \
+        "${pkgdir}/opt/veil"/fix_stacks.py \
+        "${pkgdir}/opt/veil"/http3server \
+        "${pkgdir}/opt/veil"/logalloc-replay \
+        "${pkgdir}/opt/veil"/nsinstall \
+        "${pkgdir}/opt/veil"/pk12util \
+        "${pkgdir}/opt/veil"/rapl \
+        "${pkgdir}/opt/veil"/screentopng \
+        "${pkgdir}/opt/veil"/signmar \
+        "${pkgdir}/opt/veil"/ssltunnel \
+        "${pkgdir}/opt/veil"/xpcshell \
+        "${pkgdir}/opt/veil"/zucchini \
+        "${pkgdir}/opt/veil"/zucchini-gtest
+  rm -f "${pkgdir}/opt/veil"/Test*
+
+  install -m755 "${srcdir}/veil.sh" "${pkgdir}/usr/bin/veil"
+  install -m644 "${srcdir}/veil.desktop" "${pkgdir}/usr/share/applications/veil.desktop"
+
+  for size in 16 32 48 64 128 256 512; do
+    install -dm755 "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps"
+    install -m644 "${bundle}/icons/veil-icon-${size}.png" \
+      "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps/veil.png"
+  done
+
+  install -m644 "${bundle}/README-Linux.md" "${docdir}/README-Linux.md"
+  install -m644 "${bundle}/BUILD-INFO.txt" "${docdir}/BUILD-INFO.txt"
+}
